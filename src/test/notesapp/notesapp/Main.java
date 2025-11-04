@@ -12,7 +12,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("test/notesapp/notesapp/controller/view/notes_view.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("view/notes_view.fxml"));
         Scene scene = new Scene(loader.load());
         stage.setTitle("NotesApp");
         stage.setScene(scene);
