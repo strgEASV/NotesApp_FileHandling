@@ -39,18 +39,29 @@ public class NotesController {
         currentFile = file;
 
         // --- Training area #1 ---
-        // OPTION A: Using BufferedReader / FileReader (classic I/O)
-        //   1. Create a BufferedReader from the chosen file.
-        //   2. Read line by line and append to a StringBuilder.
-        //   3. Update textArea with the file content.
-        //   4. Close the reader safely (try-with-resources).
-        //
-        // OPTION B: Using java.nio.file.Files (modern approach)
-        //   1. Use Files.readString(file.toPath(), StandardCharsets.UTF_8)
-        //      to read the entire content in one call.
-        //   2. Set the result into textArea.
+        try {
+            if (useModern) {
+                // OPTION B: Using java.nio.file.Files (modern approach)
+                String content = Files.readString(file.toPath(), StandardCharsets.UTF_8);
+                textArea.setText(content);
+            } else {
+                // OPTION A: Using BufferedReader / FileReader (classic I/O)
+                StringBuilder sb = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line).append(System.lineSeparator());
+                    }
+                }
+                textArea.setText(sb.toString());
+            }
+            statusLabel.setText("Opened: " + file.getName());
 
-        statusLabel.setText("Opened: " + file.getName());
+        } catch (IOException e) {
+            e.printStackTrace();
+            statusLabel.setText("Error opening file: " + e.getMessage());
+            textArea.clear();
+        }
     }
 
     /** Called when user clicks "Save". */
@@ -66,15 +77,21 @@ public class NotesController {
         String content = textArea.getText();
 
         // --- Training area #2 ---
-        // OPTION A: Using BufferedWriter / FileWriter (classic I/O)
-        //   1. Create a BufferedWriter for currentFile.
-        //   2. Write the content from textArea.
-        //   3. Close the writer with try-with-resources.
-        //
-        // OPTION B: Using java.nio.file.Files (modern approach)
-        //   1. Use Files.writeString(currentFile.toPath(), content, StandardCharsets.UTF_8)
-        //      to save in a single line.
+        try {
+            if (useModern) {
+                // OPTION B: Using java.nio.file.Files (modern approach)
+                Files.writeString(currentFile.toPath(), content, StandardCharsets.UTF_8);
+            } else {
+                // OPTION A: Using BufferedWriter / FileWriter (classic I/O)
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(currentFile, StandardCharsets.UTF_8))) {
+                    writer.write(content);
+                }
+            }
+            statusLabel.setText("Saved: " + currentFile.getName());
 
-        statusLabel.setText("Saved: " + currentFile.getName());
+        } catch (IOException e) {
+            e.printStackTrace();
+            statusLabel.setText("Error saving file: " + e.getMessage());
+        }
     }
 }
